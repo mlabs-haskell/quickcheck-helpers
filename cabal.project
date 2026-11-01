@@ -1,0 +1,8 @@
+packages: ./logical-shrinking.cabal
+
+benchmarks: True
+tests: True
+test-show-details: direct
+
+package logical-shrinking
+  ghc-options: -Werror
