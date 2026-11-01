@@ -4,7 +4,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
-module Test.Shrink
+module Test.QuickCheck.Helpers
   ( -- * Generation
     genOver,
 

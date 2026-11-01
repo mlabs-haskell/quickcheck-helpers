@@ -1,5 +1,5 @@
 cabal-version: 3.0
-name: logical-shrinking
+name: quickcheck-helpers
 version: 1.0.0
 synopsis: Someday something will go here.
 description: Someday something will go here.
@@ -27,7 +27,7 @@ common lang
 
 library
   import: lang
-  exposed-modules: Test.Shrink
+  exposed-modules: Test.QuickCheck.Helpers
   build-depends: QuickCheck ^>=2.18.0.0
   hs-source-dirs: src
 
@@ -43,6 +43,6 @@ test-suite tests
   hs-source-dirs: test
   build-depends:
     QuickCheck,
-    logical-shrinking,
+    quickcheck-helpers,
     tasty ^>=1.5.5,
-    tasty-quickcheck,
+    tasty-quickcheck ^>=0.11.1,

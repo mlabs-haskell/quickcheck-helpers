@@ -18,8 +18,8 @@ import Test.QuickCheck
     (===),
     pattern Fn,
   )
+import Test.QuickCheck.Helpers (neShrink, shrinkSuchThat)
 import Test.QuickCheck.Poly (A)
-import Test.Shrink (neShrink, shrinkSuchThat)
 import Test.Tasty (adjustOption, defaultMain, testGroup)
 import Test.Tasty.QuickCheck (QuickCheckTests, testProperty)
 
