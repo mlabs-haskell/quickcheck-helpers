@@ -1,54 +1,70 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
 module Test.QuickCheck.Helpers
-  ( -- * Generation
-    genOver,
-
-    -- * Shrinking
-    shrinkOver,
+  ( Shrink,
     neShrink,
     neShrinkOver,
-    shrinkSuchThat,
+    neShrinkWhen,
+    runShrink,
   )
 where
 
 import Data.Coerce (Coercible, coerce)
 import Data.Kind (Type)
-import Test.QuickCheck (Arbitrary (arbitrary, shrink), Gen)
+import Data.List.NonEmpty (NonEmpty ((:|)))
+import Test.QuickCheck (Arbitrary (shrink))
 
-genOver ::
-  forall (b :: Type) (a :: Type).
-  (Arbitrary b, Coercible a b) =>
-  Gen a
-genOver = coerce <$> arbitrary @b
+-- | @'Shrink' a ~ (a, 'Maybe' [a])@
+data Shrink (a :: Type)
+  = NonShrinking a
+  | Shrinking (NonEmpty a)
+  deriving stock (Eq, Show, Functor)
 
-neShrink :: forall (a :: Type). (Arbitrary a) => a -> [a]
+instance Applicative Shrink where
+  pure = NonShrinking
+  fs <*> xs = case fs of
+    NonShrinking f -> case xs of
+      NonShrinking x -> NonShrinking (f x)
+      Shrinking xs' -> Shrinking (fmap f xs')
+    Shrinking fs' -> case xs of
+      NonShrinking x -> Shrinking (fmap ($ x) fs')
+      Shrinking xs' -> Shrinking (fs' <*> xs')
+
+runShrink ::
+  forall (a :: Type).
+  (a -> Shrink a) ->
+  a ->
+  [a]
+runShrink f x = case f x of
+  NonShrinking _ -> []
+  Shrinking (y :| ys) -> y : ys
+
+neShrink ::
+  forall (a :: Type).
+  (Arbitrary a) => a -> Shrink a
 neShrink x = case shrink x of
-  [] -> [x]
-  xs -> xs
-
-shrinkOver ::
-  forall (b :: Type) (a :: Type).
-  (Arbitrary b, Coercible a b) =>
-  a -> [a]
-shrinkOver = coerce . shrink @b . coerce
+  [] -> NonShrinking x
+  (y : ys) -> Shrinking (y :| ys)
 
 neShrinkOver ::
   forall (b :: Type) (a :: Type).
   (Arbitrary b, Coercible a b) =>
-  a -> [a]
-neShrinkOver x = case shrinkOver @b x of
-  [] -> [x]
-  xs -> xs
+  a -> Shrink a
+neShrinkOver x = case coerce . shrink @b . coerce $ x of
+  [] -> NonShrinking x
+  (y : ys) -> Shrinking (y :| ys)
 
-shrinkSuchThat ::
+neShrinkWhen ::
   forall (a :: Type).
   (Arbitrary a) =>
   (a -> Bool) ->
   a ->
-  [a]
-shrinkSuchThat cond = filter cond . shrink
+  Shrink a
+neShrinkWhen cond x = case filter cond . shrink $ x of
+  [] -> NonShrinking x
+  (y : ys) -> Shrinking (y :| ys)
