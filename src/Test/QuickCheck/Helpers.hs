@@ -2,6 +2,7 @@
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE KindSignatures #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
@@ -17,7 +18,7 @@ where
 import Data.Coerce (Coercible, coerce)
 import Data.Kind (Type)
 import Data.List.NonEmpty (NonEmpty ((:|)))
-import Test.QuickCheck (Arbitrary (shrink))
+import Test.QuickCheck (Arbitrary (arbitrary, shrink), oneof)
 
 -- | @'Shrink' a ~ (a, 'Maybe' [a])@
 data Shrink (a :: Type)
@@ -34,6 +35,13 @@ instance Applicative Shrink where
     Shrinking fs' -> case xs of
       NonShrinking x -> Shrinking (fmap ($ x) fs')
       Shrinking xs' -> Shrinking (fs' <*> xs')
+
+-- | Extremely meta.
+instance (Arbitrary a) => Arbitrary (Shrink a) where
+  arbitrary = oneof [NonShrinking <$> arbitrary, Shrinking <$> arbitrary]
+  shrink = \case
+    NonShrinking _ -> []
+    Shrinking xs -> Shrinking <$> shrink xs
 
 runShrink ::
   forall (a :: Type).
