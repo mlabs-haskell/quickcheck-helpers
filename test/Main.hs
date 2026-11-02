@@ -18,7 +18,7 @@ import Test.QuickCheck
     (.&&.),
     (===),
   )
-import Test.QuickCheck.Helpers (Shrink, neShrink, runShrink)
+import Test.QuickCheck.Helpers (Shrink, neShrink, toShrink)
 import Test.QuickCheck.Poly (A)
 import Test.Tasty (adjustOption, defaultMain, testGroup)
 import Test.Tasty.QuickCheck (QuickCheckTests, testProperty)
@@ -78,7 +78,7 @@ badShrink (Pair x y) = Pair <$> shrink x <*> shrink y
 goodShrink ::
   forall (a :: Type).
   (Arbitrary a) => Pair a -> [Pair a]
-goodShrink = runShrink (\(Pair x y) -> Pair <$> neShrink x <*> neShrink y)
+goodShrink = toShrink (\(Pair x y) -> Pair <$> neShrink x <*> neShrink y)
 
 -- Ugh
 deriving via Integer instance Checkable A

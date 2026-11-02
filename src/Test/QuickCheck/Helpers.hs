@@ -12,6 +12,7 @@ module Test.QuickCheck.Helpers
     neShrinkOver,
     neShrinkWhen,
     runShrink,
+    toShrink,
   )
 where
 
@@ -45,12 +46,18 @@ instance (Arbitrary a) => Arbitrary (Shrink a) where
 
 runShrink ::
   forall (a :: Type).
+  Shrink a ->
+  [a]
+runShrink = \case
+  NonShrinking _ -> []
+  Shrinking (y :| ys) -> y : ys
+
+toShrink ::
+  forall (a :: Type).
   (a -> Shrink a) ->
   a ->
   [a]
-runShrink f x = case f x of
-  NonShrinking _ -> []
-  Shrinking (y :| ys) -> y : ys
+toShrink f x = runShrink (f x)
 
 neShrink ::
   forall (a :: Type).
