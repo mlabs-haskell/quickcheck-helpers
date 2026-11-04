@@ -23,7 +23,7 @@ jobs:
           cabal-version: latest
           ghc-version: '9.8'
       - name: Check out cabal-gild
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
         with:
           ref: 36de44d75440d7e31dbbfca75a25a4c75f902651
           repository: tfausak/cabal-gild
@@ -38,7 +38,7 @@ jobs:
       - name: Install cabal-gild
         run: cabal install
       - name: Check out base repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
       - name: Run cabal-gild
         run: cabal-gild --input=quickcheck-helpers.cabal --mode=check
   generate-matrix:
@@ -61,7 +61,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout base repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
       - name: Set up HLint
         uses: haskell-actions/hlint-setup@v2
         with:
@@ -76,9 +76,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout base repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
       - name: Run Ormolu
-        uses: haskell-actions/run-ormolu@v16
+        uses: haskell-actions/run-ormolu@v21
         with:
           mode: check
   tests:
@@ -90,7 +90,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout base repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
       - id: setup-haskell
         name: Set up Haskell
         uses: haskell-actions/setup@v2
