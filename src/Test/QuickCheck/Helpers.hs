@@ -35,8 +35,9 @@
 -- >     -- very much not fine
 -- >     shrink (Pair x y) = Pair <$> shrink x <*> shrink y
 --
--- To see why, consider @x = Pair 0 6 :: Pair Int@. We expect that @x@ shrinks;
--- however, using our definition, this will not happen:
+-- It is, however, very much /not/ similar, nor the right approach. To see why,
+-- consider @x = Pair 0 6 :: Pair Int@. We expect that @x@ shrinks; however,
+-- using our definition, this will not happen:
 --
 -- >>> shrink (Pair 0 6 :: Pair Int)
 -- []
@@ -93,8 +94,9 @@
 --
 -- If we were to implement 'Arbitrary' for @CountedList@ using 'genericShrink'
 -- for the shrinker, we would end up with nonsensical shrinks that violate these
--- invariants. This could cause test failures that would never reflect the
--- proper use of this type.
+-- invariants. This could cause test failures that would never reflect realistic
+-- use of this type: we expect that its API would maintain these invariants, and
+-- thus, such situations should not arise.
 --
 -- Thus, in any situation where we have invariants that aren't \'purely
 -- structural\', this method is incorrect and cannot be used.
