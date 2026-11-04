@@ -1,0 +1,113 @@
+name: quickcheck-helpers
+
+on:
+  pull_request:
+  push: 
+    branches:
+      - 'main'
+
+jobs:
+  cabal-gild:
+    name: Check Cabal file with cabal-gild
+    needs:
+      - ormolu
+      - hlint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up environment
+        run: echo "$HOME/.cabal/bin" >> $GITHUB_PATH
+      - id: setup-haskell
+        name: Set up Haskell
+        uses: haskell-actions/setup@v2
+        with:
+          cabal-version: latest
+          ghc-version: '9.8'
+      - name: Check out cabal-gild
+        uses: actions/checkout@v3
+        with:
+          ref: f30f35eadd68366b6e3087c060df83eef09be4b2
+          repository: tfausak/cabal-gild
+      - name: Freeze
+        run: cabal freeze
+      - name: Cache
+        uses: actions/cache@v4
+        with:
+          key: ${{ runner.os}}-${{ matrix.ghc }}-${{ hashFiles('cabal.project.freeze') }}
+          path: ${{ steps.setup-haskell.outputs.cabal-store }}
+          restore-keys: ${{ runner.os }}-${{ matrix.ghc }}-
+      - name: Install cabal-gild
+        run: cabal install
+      - name: Check out base repo
+        uses: actions/checkout@v3
+      - name: Run cabal-gild
+        run: cabal-gild --input=quickcheck-helpers.cabal --mode=check
+  generate-matrix:
+    name: Generate matrix from Cabal file
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    runs-on: ubuntu-latest
+    steps:
+      - id: set-matrix
+        name: Extract the needed GHC versions
+        uses: kleidukos/get-tested@v0.1.10.0
+        with:
+          cabal-file: quickcheck-helpers.cabal
+          macos-version: '15'
+          ubuntu-version: latest
+          version: 0.1.10.0
+          windows-version: latest
+  hlint:
+    name: Check with HLint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout base repo
+        uses: actions/checkout@v3
+      - name: Set up HLint
+        uses: haskell-actions/hlint-setup@v2
+        with:
+          version: 3.8
+      - name: Run HLint
+        uses: haskell-actions/hlint-run@v2
+        with:
+          fail-on: warning
+          path: '["src/", "test/"]'
+  ormolu:
+    name: Check formatting with Ormolu
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout base repo
+        uses: actions/checkout@v3
+      - name: Run Ormolu
+        uses: haskell-actions/run-ormolu@v16
+        with:
+          mode: check
+  tests:
+    name: ${{ matrix.ghc }} on ${{ matrix.os }}
+    needs:
+      - generate-matrix
+      - ormolu
+      - hlint
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout base repo
+        uses: actions/checkout@v3
+      - id: setup-haskell
+        name: Set up Haskell
+        uses: haskell-actions/setup@v2
+        with:
+          cabal-version: latest
+          ghc-version: ${{ matrix.ghc }}
+      - name: Freeze
+        run: cabal freeze
+      - name: Cache
+        uses: actions/cache@v4
+        with:
+          key: ${{ runner.os}}-${{ matrix.ghc }}-${{ hashFiles('cabal.project.freeze') }}
+          path: ${{ steps.setup-haskell.outputs.cabal-store }}
+          restore-keys: ${{ runner.os }}-${{ matrix.ghc }}-
+      - name: Build
+        run: cabal build
+      - name: Run test suite
+        run: cabal test
+    strategy:
+      matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}

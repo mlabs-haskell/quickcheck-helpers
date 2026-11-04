@@ -1,14 +1,18 @@
 cabal-version: 3.0
 name: quickcheck-helpers
 version: 1.0.0
-synopsis: Someday something will go here.
-description: Someday something will go here.
+synopsis: Helpers for writing shrinkers.
+description:
+  Provides a way to write shrinkers both concisely and easily, while
+  not sacrificing effectiveness.
+
 license: MIT
 author: Koz Ross
 maintainer: koz@mlabs.city
+copyright: (C) MLabs 2026
 category: Test
 build-type: Simple
-tested-with: ghc ==9.8.4
+tested-with: ghc ==9.8.4 || ghc ==9.10.3 || ghc ==9.12.4 || ghc == 9.14.1
 
 -- Common sections
 common lang
