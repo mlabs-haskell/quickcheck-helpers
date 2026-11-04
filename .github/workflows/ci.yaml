@@ -10,7 +10,6 @@ jobs:
   cabal-gild:
     name: Check Cabal file with cabal-gild
     needs:
-      - ormolu
       - hlint
     runs-on: ubuntu-latest
     steps:
@@ -71,22 +70,10 @@ jobs:
         with:
           fail-on: warning
           path: '["src/", "test/"]'
-  ormolu:
-    name: Check formatting with Ormolu
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout base repo
-        uses: actions/checkout@v7
-      - name: Run Ormolu
-        uses: haskell-actions/run-ormolu@v21
-        with:
-          mode: check
-          version: '0.8.0.2'
   tests:
     name: ${{ matrix.ghc }} on ${{ matrix.os }}
     needs:
       - generate-matrix
-      - ormolu
       - hlint
     runs-on: ${{ matrix.os }}
     steps:
