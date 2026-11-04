@@ -25,7 +25,7 @@ jobs:
       - name: Check out cabal-gild
         uses: actions/checkout@v3
         with:
-          ref: f30f35eadd68366b6e3087c060df83eef09be4b2
+          ref: 36de44d75440d7e31dbbfca75a25a4c75f902651
           repository: tfausak/cabal-gild
       - name: Freeze
         run: cabal freeze
