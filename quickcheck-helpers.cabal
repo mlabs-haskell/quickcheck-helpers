@@ -13,8 +13,11 @@ copyright: (C) MLabs 2026
 category: Test
 build-type: Simple
 tested-with: ghc =={9.8.4, 9.10.3, 9.12.4, 9.14.1}
+extra-source-files:
+  CHANGELOG.md
+  LICENSE.md
+  README.md
 
--- Common sections
 common lang
   build-depends: base >=4.19.0.0
   ghc-options:

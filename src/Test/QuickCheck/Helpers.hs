@@ -26,7 +26,7 @@
 -- >     arbitrary = Pair <$> arbitrary <*> arbitrary
 --
 -- In particular, we can use the applicative syntax to describe 'arbitrary' over
--- 'Pair', which is essentially a product type, both clearly and concisely. One
+-- @Pair@, which is essentially a product type, both clearly and concisely. One
 -- would naturally then believe that 'shrink' would be quite similar:
 --
 -- > instance Arbitrary a => Arbitrary (Pair a) where
@@ -81,7 +81,7 @@
 --
 -- However, setting aside the lack of code clarity and performance issues of
 -- @Generic@, this method is not suitable for any type with \'internal
--- invariants\'. More specifically, 'genericShrink' is purely structural, and
+-- invariants\'. More specifically, 'Test.Quickcheck.genericShrink' is purely structural, and
 -- will not maintain any invariant that isn't enforced by the type system
 -- directly. For example, consider the following:
 --
@@ -92,7 +92,7 @@
 -- * Must be non-negative; and
 -- * Must be the same as the length of the @[a]@ field.
 --
--- If we were to implement 'Arbitrary' for @CountedList@ using 'genericShrink'
+-- If we were to implement 'Arbitrary' for @CountedList@ using 'Test.QuickCheck.genericShrink'
 -- for the shrinker, we would end up with nonsensical shrinks that violate these
 -- invariants. This could cause test failures that would never reflect realistic
 -- use of this type: we expect that its API would maintain these invariants, and
@@ -240,7 +240,7 @@ neShrinkOver x = case coerce . shrink @b . coerce $ x of
 
 -- | As 'neShrink', but allows adding a condition that any shrunk results must
 -- satisfy. This is needed because 'Shrink' cannot be an instance of
--- 'Alternative'.
+-- 'Control.Applicative.Alternative'.
 --
 -- @since 1.0.0
 neShrinkWhen ::
