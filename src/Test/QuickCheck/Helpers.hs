@@ -62,7 +62,7 @@
 -- > instance Arbitrary a => Arbitrary (Pair a) where
 -- >     arbitrary = Pair <$> arbitrary <*> arbitrary
 -- >     shrink (Pair x y) = (Pair <$> pure x <*> shrink y) <|>
---                           (Pair <$> shrink x <*> pure y)
+-- >                         (Pair <$> shrink x <*> pure y)
 --
 -- Thus, for an @n@-ary product type, we have to write @n@-many entries between
 -- @<|>@, each with @n@-many fields, shrinking exactly one each time. This is
